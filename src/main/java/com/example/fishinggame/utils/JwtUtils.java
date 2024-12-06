@@ -29,4 +29,14 @@ public class JwtUtils {
                 .getSubject();
         return username.equals(tokenUsername);
     }
+
+    public static String validateTokenAndGetUsername(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+    }
+
 }
