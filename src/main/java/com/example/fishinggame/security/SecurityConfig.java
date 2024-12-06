@@ -31,6 +31,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll() // Allow public access to /api/auth
                         .requestMatchers("/api/user/**").authenticated() // Protect /api/user endpoints
+                        .requestMatchers("/api/fish/**").authenticated()
                         .anyRequest().authenticated() // Protect all other endpoints
                 );
 
