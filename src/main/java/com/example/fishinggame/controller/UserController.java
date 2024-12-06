@@ -48,13 +48,4 @@ public class UserController {
         }
     }
 
-    @PostMapping
-    public ResponseEntity<?> registerUser(@RequestBody User user) {
-        Integer registered = userService.registerUser(user);
-        if (registered == 0) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Registration failed!");
-        } else {
-            return ResponseEntity.ok("Successfully registered user");
-        }
-    }
 }
