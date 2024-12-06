@@ -10,6 +10,7 @@ import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,6 +33,8 @@ public class AuthController {
         if (checkIfExist != null) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists");
         }
+        String hashedPassword = BCrypt.hashpw(registerRequest.getPassword(), BCrypt.gensalt());
+        registerRequest.setPassword(hashedPassword);
         Integer registered = userService.registerUser(registerRequest);
         if (registered == 0) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Registration failed!");
@@ -46,8 +49,11 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username and password are required");
         }
         User user = userService.getUserByUsername(loginRequest.getUsername());
-        if (user == null || !user.getPassword().equals(loginRequest.getPassword())) {
+        if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
+        }
+        if (!BCrypt.checkpw(loginRequest.getPassword(), user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
         }
         String token = JwtUtils.generateToken(user.getUsername());
         return ResponseEntity.ok(new LoginResponse(token));
