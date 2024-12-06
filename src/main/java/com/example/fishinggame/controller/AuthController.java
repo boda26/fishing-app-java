@@ -1,6 +1,8 @@
 package com.example.fishinggame.controller;
 
+import com.example.fishinggame.model.Inventory;
 import com.example.fishinggame.model.User;
+import com.example.fishinggame.service.InventoryService;
 import com.example.fishinggame.service.UserService;
 import com.example.fishinggame.utils.JwtUtils;
 import lombok.AllArgsConstructor;
@@ -20,10 +22,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/auth")
 public class AuthController {
     private final UserService userService;
+    private final InventoryService inventoryService;
 
     @Autowired
-    public AuthController(UserService userService) {
+    public AuthController(UserService userService, InventoryService inventoryService) {
         this.userService = userService;
+        this.inventoryService = inventoryService;
     }
 
     @PostMapping("/register")
@@ -38,9 +42,17 @@ public class AuthController {
         Integer registered = userService.registerUser(registerRequest);
         if (registered == 0) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Registration failed!");
-        } else {
-            return ResponseEntity.ok("Successfully registered user");
         }
+
+        // create an empty inventory for the new user
+        Integer userId = userService.getUserByUsername(registerRequest.getUsername()).getUserId();
+        Inventory inventory = new Inventory();
+        inventory.setUserId(userId);
+        Integer inventoryCreated = inventoryService.createInventory(inventory);
+        if (inventoryCreated == 0) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Registration failed!");
+        }
+        return ResponseEntity.ok("Successfully registered new user");
     }
 
     @PostMapping("/login")
@@ -55,7 +67,7 @@ public class AuthController {
         if (!BCrypt.checkpw(loginRequest.getPassword(), user.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
         }
-        String token = JwtUtils.generateToken(user.getUsername());
+        String token = JwtUtils.generateToken(user.getUsername(), user.getUserId());
         return ResponseEntity.ok(new LoginResponse(token));
     }
 
