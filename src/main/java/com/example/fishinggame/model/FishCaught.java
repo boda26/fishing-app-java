@@ -15,6 +15,7 @@ public class FishCaught {
     private int id;
     private int inventoryId;
     private int fishTypeId;
+    private String fishType;
     private float weight;
     private String rarityLevel;
     private LocalDateTime caughtAt;

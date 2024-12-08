@@ -16,5 +16,5 @@ public interface FishCaughtMapper {
     @Insert("INSERT INTO fish_caught(inventory_id, fish_type_id, weight, rarity_level, price) " +
             "VALUES (#{inventoryId}, #{fishTypeId}, #{weight}, #{rarityLevel}, #{price})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
-    Integer createFishCaught(FishCaught fishCaught);
+    void createFishCaught(FishCaught fishCaught);
 }

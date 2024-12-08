@@ -45,7 +45,6 @@ public class AuthController {
         }
 
         // create an empty inventory for the new user
-//        Integer userId = userService.getUserByUsername(registerRequest.getUsername()).getUserId();
         Integer userId = registerRequest.getUserId();
         System.out.println(userId);
         Inventory inventory = new Inventory();

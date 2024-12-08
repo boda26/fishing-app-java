@@ -3,8 +3,8 @@ package com.example.fishinggame.mapper;
 import com.example.fishinggame.model.Fish;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
-
 import java.util.List;
 
 @Mapper
@@ -17,4 +17,13 @@ public interface FishMapper {
 
     @Select("SELECT * FROM fish")
     List<Fish> getAllFish();
+
+    @Select("<script>" +
+            "SELECT id, type FROM fish WHERE id IN " +
+            "<foreach item='id' collection='list' open='(' separator=',' close=')'>" +
+            "#{id}" +
+            "</foreach>" +
+            "</script>")
+    List<Fish> getFishByIds(@Param("list") List<Integer> ids);
+
 }
