@@ -18,6 +18,7 @@ public interface UserMapper {
 
     @Insert("INSERT INTO user(username, password, email, phone) " +
             "VALUES (#{username}, #{password}, #{email}, #{phone})")
+    @Options(useGeneratedKeys = true, keyProperty = "userId")
     Integer registerUser(User user);
 
     @Delete("DELETE FROM user WHERE user_id = #{id}")

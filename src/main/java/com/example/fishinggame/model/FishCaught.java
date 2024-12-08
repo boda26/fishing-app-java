@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 @ToString
 public class FishCaught {
     private int id;
-    private Inventory inventory;
-    private Fish fishType;
+    private int inventoryId;
+    private int fishTypeId;
     private float weight;
     private String rarityLevel;
     private LocalDateTime caughtAt;
