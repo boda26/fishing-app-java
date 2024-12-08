@@ -28,38 +28,51 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String authorizationHeader = request.getHeader("Authorization");
 
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            String token = authorizationHeader.substring(7);
-            try {
-                String username = JwtUtils.validateTokenAndGetUsername(token);
-                boolean isAdmin = JwtUtils.extractIsAdmin(token);
-                if (username != null) {
-                    // Assign roles based on the isAdmin claim
-                    List<GrantedAuthority> authorities = new ArrayList<>();
-                    if (isAdmin) {
-                        authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-                    } else {
-                        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-                    }
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            // No Bearer token provided
+            response.setContentType("application/json");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("{\"message\": \"You need to login first.\"}");
+            return;
+        }
 
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            username, null, authorities);
-                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+        String token = authorizationHeader.substring(7);
+        try {
+            String username = JwtUtils.validateTokenAndGetUsername(token);
+            boolean isAdmin = JwtUtils.extractIsAdmin(token);
+            if (username != null) {
+                // Assign roles based on the isAdmin claim
+                List<GrantedAuthority> authorities = new ArrayList<>();
+                if (isAdmin) {
+                    authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+                } else {
+                    authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
                 }
-            } catch (ExpiredJwtException e) {
-                // Token has expired
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("Token has expired. Please login again.");
-                return;
-            } catch (JwtException e) {
-                // Invalid token
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("Invalid token. Please login again.");
-                return;
+
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        username, null, authorities);
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
+        } catch (ExpiredJwtException e) {
+            // Token has expired
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Token has expired. Please login again.");
+            return;
+        } catch (JwtException e) {
+            // Invalid token
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Invalid token. Please login again.");
+            return;
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        // Skip filtering for /api/auth/** routes
+        String path = request.getRequestURI();
+        return path.startsWith("/api/auth/");
     }
 }

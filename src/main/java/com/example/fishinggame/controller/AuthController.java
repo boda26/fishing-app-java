@@ -32,44 +32,71 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody User registerRequest) {
-        // check if user already exist
-        User checkIfExist = userService.getUserByUsername(registerRequest.getUsername());
-        if (checkIfExist != null) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists");
-        }
-        String hashedPassword = BCrypt.hashpw(registerRequest.getPassword(), BCrypt.gensalt());
-        registerRequest.setPassword(hashedPassword);
-        Integer registered = userService.registerUser(registerRequest);
-        if (registered == 0) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Registration failed!");
-        }
+        try {
+            // Validate input
+            if (registerRequest.getUsername() == null || registerRequest.getPassword() == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username and password are required");
+            }
 
-        // create an empty inventory for the new user
-        Integer userId = registerRequest.getUserId();
-        System.out.println(userId);
-        Inventory inventory = new Inventory();
-        inventory.setUserId(userId);
-        Integer inventoryCreated = inventoryService.createInventory(inventory);
-        if (inventoryCreated == 0) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Registration failed!");
+            // Check if user already exists
+            User checkIfExist = userService.getUserByUsername(registerRequest.getUsername());
+            if (checkIfExist != null) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists");
+            }
+
+            // Hash the password and save the user
+            String hashedPassword = BCrypt.hashpw(registerRequest.getPassword(), BCrypt.gensalt());
+            registerRequest.setPassword(hashedPassword);
+            Integer registered = userService.registerUser(registerRequest);
+
+            if (registered == 0) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("User registration failed due to a system error");
+            }
+
+            // Create an empty inventory for the new user
+            Inventory inventory = new Inventory();
+            inventory.setUserId(registerRequest.getUserId());
+            Integer inventoryCreated = inventoryService.createInventory(inventory);
+
+            if (inventoryCreated == 0) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create user inventory");
+            }
+
+            return ResponseEntity.ok("Successfully registered new user " + registerRequest.getUsername());
+        } catch (Exception e) {
+            // Log the error for debugging
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred during registration");
         }
-        return ResponseEntity.ok("Successfully registered new user");
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        if (loginRequest.getUsername() == null || loginRequest.getPassword() == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username and password are required");
+        try {
+            // Validate input
+            if (loginRequest.getUsername() == null || loginRequest.getPassword() == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username and password are required");
+            }
+
+            // Fetch the user by username
+            User user = userService.getUserByUsername(loginRequest.getUsername());
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username");
+            }
+
+            // Check password
+            if (!BCrypt.checkpw(loginRequest.getPassword(), user.getPassword())) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Password is incorrect!");
+            }
+
+            // Generate JWT token
+            String token = JwtUtils.generateToken(user.getUsername(), user.getUserId(), user.getIsAdmin());
+            return ResponseEntity.ok(new LoginResponse(token));
+        } catch (Exception e) {
+            // Log the error for debugging
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred during login");
         }
-        User user = userService.getUserByUsername(loginRequest.getUsername());
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
-        }
-        if (!BCrypt.checkpw(loginRequest.getPassword(), user.getPassword())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
-        }
-        String token = JwtUtils.generateToken(user.getUsername(), user.getUserId(), user.getIsAdmin());
-        return ResponseEntity.ok(new LoginResponse(token));
     }
 
     // Static inner class for LoginRequest
