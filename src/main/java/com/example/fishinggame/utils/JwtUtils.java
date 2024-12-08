@@ -12,10 +12,11 @@ public class JwtUtils {
     private static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256); // Secret key
     private static final long EXPIRATION_TIME = 3600000; // 1 hour in milliseconds
 
-    public static String generateToken(String username, Integer userId) {
+    public static String generateToken(String username, Integer userId, boolean isAdmin) {
         return Jwts.builder()
                 .setSubject(username)
                 .claim("userId", userId)  // Add userId to the token as a custom claim
+                .claim("isAdmin", isAdmin) // Add isAdmin as a custom claim
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(key)
@@ -29,8 +30,17 @@ public class JwtUtils {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-
         return claims.get("userId", Integer.class);
+    }
+
+    // Extract isAdmin from the token
+    public static boolean extractIsAdmin(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("isAdmin", Boolean.class);
     }
 
 

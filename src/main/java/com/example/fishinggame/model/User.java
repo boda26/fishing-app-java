@@ -21,4 +21,5 @@ public class User {
     private Integer diamonds;
     private String createdAt;
     private String updatedAt;
+    private Boolean isAdmin;
 }

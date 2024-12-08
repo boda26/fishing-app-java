@@ -67,7 +67,7 @@ public class AuthController {
         if (!BCrypt.checkpw(loginRequest.getPassword(), user.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
         }
-        String token = JwtUtils.generateToken(user.getUsername(), user.getUserId());
+        String token = JwtUtils.generateToken(user.getUsername(), user.getUserId(), user.getIsAdmin());
         return ResponseEntity.ok(new LoginResponse(token));
     }
 
