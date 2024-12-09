@@ -39,14 +39,44 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable Integer id) {
-        User user =  userService.getUserById(id);
+    @GetMapping("/details")
+    public ResponseEntity<?> getUserDetails(@RequestHeader("Authorization") String token) {
+        Integer userId = extractUserIdFromToken(token);
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+        }
+        User user = userService.getUserDetails(userId);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         } else {
             return ResponseEntity.ok(user);
         }
+    }
+
+    @GetMapping("/coins")
+    public ResponseEntity<?> getCoins(@RequestHeader("Authorization") String token) {
+        Integer userId = extractUserIdFromToken(token);
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+        }
+        Float coins = userService.getCoins(userId);
+        if (coins == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("You do not have a wallet!");
+        }
+        return ResponseEntity.ok(coins);
+    }
+
+    @GetMapping("/diamonds")
+    public ResponseEntity<?> getDiamonds(@RequestHeader("Authorization") String token) {
+        Integer userId = extractUserIdFromToken(token);
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+        }
+        Integer diamonds = userService.getDiamonds(userId);
+        if (diamonds == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("You do not have a wallet!");
+        }
+        return ResponseEntity.ok(diamonds);
     }
 
 //    @DeleteMapping

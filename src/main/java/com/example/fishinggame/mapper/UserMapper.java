@@ -11,7 +11,7 @@ public interface UserMapper {
     List<User> getAllUsers();
 
     @Select("SELECT * FROM user WHERE user_id = #{id}")
-    User getUserById(Integer id);
+    User getUserDetails(Integer id);
 
     @Select("SELECT * FROM user WHERE username = #{username}")
     User getUserByUsername(String username);
@@ -30,5 +30,11 @@ public interface UserMapper {
 
     @Update("UPDATE user SET coins = #{coins} WHERE user_id = #{id}")
     Integer updateCoins(Integer id, Float coins);
+
+    @Select("SELECT coins FROM user WHERE user_id = #{id}")
+    Float getCoins(Integer id);
+
+    @Select("SELECT diamonds FROM user WHERE user_id = #{id}")
+    Integer getDiamonds(Integer id);
 
 }

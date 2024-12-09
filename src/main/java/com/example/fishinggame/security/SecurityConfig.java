@@ -36,9 +36,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/inventory/**").authenticated()
                         .requestMatchers("/api/shop/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/user/**").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/fish/**").authenticated()
                         .requestMatchers("/api/user/**").hasRole("ADMIN")
-                        .requestMatchers("/api/fish/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/fish/**").authenticated()
+                        .requestMatchers( "/api/fish/**").hasRole("ADMIN")
                         .anyRequest().authenticated() // Protect all other endpoints
                 );
 

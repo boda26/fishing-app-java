@@ -23,8 +23,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserById(Integer id) {
-        return userMapper.getUserById(id);
+    public User getUserDetails(Integer id) {
+        return userMapper.getUserDetails(id);
     }
 
     @Override
@@ -45,5 +45,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public Integer updateCoins(Integer id, Float coins) {
         return userMapper.updateCoins(id, coins);
+    }
+
+    @Override
+    public Float getCoins(Integer id) {
+        return userMapper.getCoins(id);
+    }
+
+    @Override
+    public Integer getDiamonds(Integer id) {
+        return userMapper.getDiamonds(id);
     }
 }

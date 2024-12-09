@@ -60,8 +60,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         // Step 5: Update User's Coins
-        User user = userService.getUserById(userId);
-        float updatedCoins = user.getCoins() + fish.getPrice();
+        float updatedCoins = userService.getCoins(userId) + fish.getPrice();
         int updated = userService.updateCoins(userId, updatedCoins);
         if (updated == 0) {
             throw new IllegalStateException("Failed to update user's coins");
