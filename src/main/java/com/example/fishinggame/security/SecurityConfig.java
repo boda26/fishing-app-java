@@ -33,6 +33,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/fish-caught/**").authenticated()
+                        .requestMatchers("/api/inventory/**").authenticated()
+                        .requestMatchers("/api/shop/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/user/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/fish/**").authenticated()
                         .requestMatchers("/api/user/**").hasRole("ADMIN")

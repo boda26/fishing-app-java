@@ -17,7 +17,7 @@ public class User {
     private String phone;
     private Integer level;
     private Integer currentExperience;
-    private Integer coins;
+    private Float coins;
     private Integer diamonds;
     private String createdAt;
     private String updatedAt;

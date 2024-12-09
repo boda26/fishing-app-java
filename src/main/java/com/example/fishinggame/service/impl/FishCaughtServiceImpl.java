@@ -118,4 +118,16 @@ public class FishCaughtServiceImpl implements FishCaughtService {
         // Return the caught fish record
         return fishCaught;
     }
+
+    @Override
+    public Integer deleteFishCaught(Integer fishCaughtId) {
+        return fishCaughtMapper.deleteFishCaught(fishCaughtId);
+    }
+
+    @Override
+    public Integer removeFishFromInventory(Integer fishCaughtId) {
+        return fishCaughtMapper.removeFishFromInventory(fishCaughtId);
+    }
+
+
 }

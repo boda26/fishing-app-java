@@ -1,10 +1,7 @@
 package com.example.fishinggame.mapper;
 
 import com.example.fishinggame.model.FishCaught;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -17,4 +14,13 @@ public interface FishCaughtMapper {
             "VALUES (#{inventoryId}, #{fishTypeId}, #{weight}, #{rarityLevel}, #{price})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     void createFishCaught(FishCaught fishCaught);
+
+    @Select("SELECT * FROM fish_caught WHERE id = #{fishCaughtId}")
+    FishCaught getFishCaughtByFishCaughtId(int fishCaughtId);
+
+    @Delete("DELETE FROM fish_caught WHERE id = #{fishCaughtId}")
+    Integer deleteFishCaught(Integer fishCaughtId);
+
+    @Update("UPDATE fish_caught SET inventory_id = -1 WHERE id = #{fishCaughtId}")
+    Integer removeFishFromInventory(Integer fishCaughtId);
 }

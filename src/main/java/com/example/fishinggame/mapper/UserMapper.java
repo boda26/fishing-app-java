@@ -26,6 +26,9 @@ public interface UserMapper {
 
     @Update("UPDATE user SET username = #{username}, password = #{password}, " +
             "email = #{email}, phone = #{phone} WHERE user_id = #{userId}")
-    int updateUser(User user);
+    Integer updateUser(User user);
+
+    @Update("UPDATE user SET coins = #{coins} WHERE user_id = #{id}")
+    Integer updateCoins(Integer id, Float coins);
 
 }

@@ -10,4 +10,5 @@ public interface UserService {
     User getUserByUsername(String username);
     Integer deleteUser(Integer id);
     Integer registerUser(User user);
+    Integer updateCoins(Integer id, Float coins);
 }

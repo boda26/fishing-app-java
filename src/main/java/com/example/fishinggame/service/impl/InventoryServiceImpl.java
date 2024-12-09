@@ -10,6 +10,7 @@ import com.example.fishinggame.service.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -31,6 +32,28 @@ public class InventoryServiceImpl implements InventoryService {
     public Integer createInventory(Inventory inventory) {
         return inventoryMapper.createInventory(inventory);
     }
+
+    @Override
+    public Inventory getInventoryBasic(Integer id) {
+        // Validate input ID
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException("Invalid inventory ID provided.");
+        }
+
+        // Fetch the inventory by ID
+        Inventory inventory;
+        try {
+            inventory = inventoryMapper.getInventory(id);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fetch inventory for ID: " + id, e);
+        }
+
+        if (inventory == null) {
+            throw new IllegalStateException("No inventory found for ID: " + id);
+        }
+        return inventory;
+    }
+
 
     @Override
     public Inventory getInventory(Integer id) {
@@ -104,5 +127,17 @@ public class InventoryServiceImpl implements InventoryService {
         return inventory;
     }
 
+    @Override
+    public FishCaught getFishByFishCaughtId(Integer inventoryId, Integer fishCaughtId) {
+        FishCaught fishCaught = fishCaughtMapper.getFishCaughtByFishCaughtId(fishCaughtId);
+        if (fishCaught != null && fishCaught.getInventoryId() == inventoryId) {
+            List<Integer> fishIds = new ArrayList<>();
+            fishIds.add(fishCaught.getFishTypeId());
+            List<Fish> fishType = fishMapper.getFishByIds(fishIds);
+            fishCaught.setFishType(fishType.get(0).getType());
+            return fishCaught;
+        }
+        return null;
+    }
 
 }

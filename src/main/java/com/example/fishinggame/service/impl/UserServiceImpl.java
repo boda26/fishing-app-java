@@ -41,4 +41,9 @@ public class UserServiceImpl implements UserService {
     public Integer registerUser(User user) {
         return userMapper.registerUser(user);
     }
+
+    @Override
+    public Integer updateCoins(Integer id, Float coins) {
+        return userMapper.updateCoins(id, coins);
+    }
 }
