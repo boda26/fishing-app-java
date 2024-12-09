@@ -3,7 +3,6 @@ package com.example.fishinggame.controller;
 import com.example.fishinggame.model.Shop;
 import com.example.fishinggame.service.ShopService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

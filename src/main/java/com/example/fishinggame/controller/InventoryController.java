@@ -1,34 +1,24 @@
 package com.example.fishinggame.controller;
 
 import com.example.fishinggame.model.*;
-import com.example.fishinggame.service.FishCaughtService;
-import com.example.fishinggame.service.InventoryService;
-import com.example.fishinggame.service.ShopService;
-import com.example.fishinggame.service.UserService;
+import com.example.fishinggame.service.*;
 import com.example.fishinggame.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/inventory")
 public class InventoryController {
 
     private final InventoryService inventoryService;
-    private final FishCaughtService fishCaughtService;
-    private final ShopService shopService;
-    private final UserService userService;
+    private final TransactionService transactionService;
 
     @Autowired
-    public InventoryController(InventoryService inventoryService, FishCaughtService fishCaughtService,
-                               ShopService shopService, UserService userService) {
+    public InventoryController(InventoryService inventoryService, TransactionService transactionService) {
         this.inventoryService = inventoryService;
-        this.fishCaughtService = fishCaughtService;
-        this.shopService = shopService;
-        this.userService = userService;
+        this.transactionService = transactionService;
     }
 
     private Integer extractUserIdFromToken(String token) {
@@ -80,40 +70,19 @@ public class InventoryController {
 
     @PostMapping("/sell/{fishId}")
     public ResponseEntity<?> sellFish(@RequestHeader("Authorization") String token, @PathVariable Integer fishId) {
-        // Extract userId from the token
         Integer userId = extractUserIdFromToken(token);
         if (userId == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
         }
 
-        // check if fish exist in user inventory
-        Inventory inventory = inventoryService.getInventoryBasic(userId);
-        if (inventory == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Inventory not found");
+        try {
+            Float updatedCoins = transactionService.sellFish(userId, fishId);
+            return ResponseEntity.ok("Fish sold successfully. Updated coins: " + updatedCoins);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
         }
-
-        FishCaught fish = inventoryService.getFishByFishCaughtId(inventory.getId(), fishId);
-        if (fish == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cannot find this fish in your inventory");
-        }
-
-        // remove the fish from user's inventory
-        Integer removed = fishCaughtService.removeFishFromInventory(fish.getId());
-
-        // add the fish to the shop
-        Shop newShopItem = new Shop();
-        newShopItem.setFishCaughtId(fish.getId());
-        newShopItem.setFishTypeId(fish.getFishTypeId());
-        newShopItem.setRarityLevel(fish.getRarityLevel());
-        newShopItem.setWeight(fish.getWeight());
-        newShopItem.setPrice(fish.getPrice());
-        Integer addedToShop = shopService.addToShop(newShopItem);
-
-        // increment the user's coins
-        User user = userService.getUserById(userId);
-        Float updatedCoins = user.getCoins() + fish.getPrice();
-        userService.updateCoins(userId, updatedCoins);
-        return ResponseEntity.ok(updatedCoins);
     }
 
 
