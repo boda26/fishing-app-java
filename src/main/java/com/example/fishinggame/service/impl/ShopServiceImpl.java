@@ -69,4 +69,14 @@ public class ShopServiceImpl implements ShopService {
     public Integer addToShop(Shop shop) {
         return shopMapper.addToShop(shop);
     }
+
+    @Override
+    public Shop getShopItemById(Integer id) {
+        return shopMapper.getShopItemById(id);
+    }
+
+    @Override
+    public Integer removeFromShop(Integer id) {
+        return shopMapper.removeFromShop(id);
+    }
 }

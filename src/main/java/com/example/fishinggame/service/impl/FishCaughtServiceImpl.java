@@ -129,5 +129,10 @@ public class FishCaughtServiceImpl implements FishCaughtService {
         return fishCaughtMapper.removeFishFromInventory(fishCaughtId);
     }
 
+    @Override
+    public Integer addFishToInventory(Integer fishCaughtId, Integer inventoryId) {
+        return fishCaughtMapper.addFishToInventory(fishCaughtId, inventoryId);
+    }
+
 
 }

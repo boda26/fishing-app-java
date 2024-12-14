@@ -8,4 +8,6 @@ public interface ShopService {
 
     List<Shop> getAllShopItems();
     Integer addToShop(Shop shop);
+    Shop getShopItemById(Integer id);
+    Integer removeFromShop(Integer id);
 }

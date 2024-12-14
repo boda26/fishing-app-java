@@ -1,6 +1,7 @@
 package com.example.fishinggame.mapper;
 
 import com.example.fishinggame.model.Shop;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -17,4 +18,10 @@ public interface ShopMapper {
             "VALUES (#{fishCaughtId}, #{fishTypeId}, #{rarityLevel}, #{weight}, #{price})")
     Integer addToShop(Shop shop);
 
+    @Select("SELECT * FROM shop WHERE id = #{id}")
+    Shop getShopItemById(Integer id);
+
+    @Delete("DELETE FROM shop WHERE id = #{id}")
+    Integer removeFromShop(Integer id);
+    
 }

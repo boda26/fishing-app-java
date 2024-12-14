@@ -68,4 +68,56 @@ public class TransactionServiceImpl implements TransactionService {
 
         return updatedCoins;
     }
+
+    @Override
+    @Transactional
+    public FishCaught buyFish(Integer userId, Integer shopItemId) {
+        try {
+            // Validate inventory
+            Inventory inventory = inventoryService.getInventoryBasic(userId);
+            if (inventory == null) {
+                throw new IllegalStateException("Inventory not found for user ID: " + userId);
+            }
+
+            // Validate shop item
+            Shop shopItem = shopService.getShopItemById(shopItemId);
+            if (shopItem == null) {
+                throw new IllegalStateException("Shop item not found for shop item ID: " + shopItemId);
+            }
+
+            // Remove item from shop
+            int removed = shopService.removeFromShop(shopItem.getId());
+            if (removed == 0) {
+                throw new IllegalStateException("Failed to remove item from shop");
+            }
+
+            // Add item to user inventory
+            Integer added = fishCaughtService.addFishToInventory(shopItem.getFishCaughtId(), inventory.getId());
+            if (added == 0) {
+                throw new IllegalStateException("Failed to add fish to inventory");
+            }
+
+            // Update user's balance
+            float updatedCoins = userService.getCoins(userId) - shopItem.getPrice();
+            if (updatedCoins < 0) {
+                throw new IllegalStateException("You do not have enough coins to buy this fish!");
+            }
+            int updated = userService.updateCoins(userId, updatedCoins);
+            if (updated == 0) {
+                throw new IllegalStateException("Failed to update user's coins");
+            }
+
+            return inventoryService.getFishByFishCaughtId(inventory.getId(), shopItem.getFishCaughtId());
+        } catch (IllegalStateException e) {
+            // Log and rethrow the exception for better tracking
+            System.err.println("Business logic error: " + e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            // Log unexpected errors
+            System.err.println("Unexpected error: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("An unexpected error occurred during the transaction");
+        }
+    }
+
 }

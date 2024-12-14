@@ -23,4 +23,7 @@ public interface FishCaughtMapper {
 
     @Update("UPDATE fish_caught SET inventory_id = -1 WHERE id = #{fishCaughtId}")
     Integer removeFishFromInventory(Integer fishCaughtId);
+
+    @Update("UPDATE fish_caught SET inventory_id = #{inventoryId} WHERE id = #{fishCaughtId}")
+    Integer addFishToInventory(Integer fishCaughtId, Integer inventoryId);
 }
