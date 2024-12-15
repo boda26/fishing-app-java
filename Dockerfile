@@ -1,17 +1,17 @@
-# Use a base image with Java runtime
+# Use a lightweight Java image as the base
 FROM openjdk:17-jdk-slim
 
-# Set the working directory
+# Set the working directory in the container
 WORKDIR /app
 
-# Copy the JAR file into the container
+# Copy the application JAR file to the container
 COPY target/FishingGame-0.0.1-SNAPSHOT.jar app.jar
 
-# Copy the .env file into the container
-COPY .env .env
+# Copy the .env file to the container
+COPY .env /app/.env
 
-# Expose the port your app runs on
+# Expose the application port
 EXPOSE 8080
 
-# Run the JAR file
-CMD ["java", "-jar", "app.jar"]
+# Set the entrypoint command to run the application
+ENTRYPOINT ["java", "-jar", "app.jar"]
